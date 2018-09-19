@@ -1,5 +1,5 @@
 # Labe 1 
-Detailed Requirements []
+Detailed Requirements [https://github.com/YiyangQian/W4733-Robotics/blob/master/lab1/lab1.pdf]
 
 ### Run the Script
 Set up a turtlebot environment
