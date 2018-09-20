@@ -35,4 +35,7 @@ If the move ordered is T or R, a number will be asked for. The number you type i
 * def getRParams(self, angular_speed): 
     * ask for a goal angular as input from user, and generate params needed to rotate robort.
 
-
+### Generate tar.gz file
+```
+tar -zcvf file.tar.gz folder_to_compress
+```
