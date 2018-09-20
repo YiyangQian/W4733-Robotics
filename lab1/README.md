@@ -1,4 +1,6 @@
 # Lab 1 
+[Link to Demo](https://youtu.be/ydDKaR5_Vos)
+
 [Detailed Requirements](https://github.com/YiyangQian/W4733-Robotics/blob/master/lab1/lab1.pdf)
 
 ### Run the Script
