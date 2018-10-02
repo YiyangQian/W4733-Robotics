@@ -25,14 +25,17 @@ from geometry_msgs.msg import Twist, Point, Quaternion
 import tf
 from rbx1_nav.transform_utils import quat_to_angle, normalize_angle
 from math import radians, copysign, sqrt, pow, pi, isnan
-
 from sensor_msgs.msg import LaserScan
 
 class Lab2():
     def __init__(self):
+
         self.g_range_ahead = 1
+        
         self.saved_pos = []
+        
         self.rotate_flag = False
+        
         # Give the node a name
         rospy.init_node('lab2', anonymous=False)
 
@@ -44,7 +47,7 @@ class Lab2():
         rospy.on_shutdown(self.shutdown)
 
         # Publisher to control the robot's speed
-        self.cmd_vel = rospy.Publisher('cmd_vel', Twist, queue_size=5)
+        self.cmd_vel = rospy.Publisher('cmd_vel', Twist, queue_size=200)
         
         # How fast will we update the robot's movement?
         rate = 5
@@ -88,51 +91,46 @@ class Lab2():
 
         destination = Point(10, 0, 0)
         
+        # flag of state: following-m-line or going-around-obstacle
         is_following_m_line = True
 
         while(self.getDistance(position, destination) > 0.3):
-
-            # print("entering while loop")
-            # print("outside cases", self.g_range_ahead)
-
             if is_following_m_line:
-                # Set the movement command to forward motion
-                # Initialize the movement command
                 move_cmd = Twist()
                 move_cmd.linear.x = linear_speed
-            
                 self.cmd_vel.publish(move_cmd)
                 r.sleep()
+
                 (position, rotation) = self.get_odom()
                 if self.g_range_ahead < 1.3:
                     is_following_m_line = False
-                    
+                    # save the position of leaving m-line
                     self.saved_pos.append(position)
 
             else:
                 move_cmd = Twist()
                 if self.g_range_ahead < 1.3:
-                    # self.rotateTillNotBlocked(angular_speed)
-                    move_cmd = Twist()
+                    # left turning
+                    print("turning left")
                     move_cmd.angular.z = angular_speed
-                    
                     for i in range(3):
                         self.cmd_vel.publish(move_cmd)
                         r.sleep()
                     self.rotate_flag = True
                     (position, rotation) = self.get_odom()
+                
                 elif self.g_range_ahead > 2 and not self.rotate_flag:
                     # right turning 
-                    print("we have entered right turn")
+                    print("turning right")
                     move_cmd.angular.z = -1 * angular_speed
-                    
                     for i in range(3):
                         self.cmd_vel.publish(move_cmd)
                         r.sleep()
                     (position, rotation) = self.get_odom()
+                
                 else:
+                    # after turn left, must move forward; current distance to object is between 1.3 and 2.0
                     move_cmd.linear.x = linear_speed
-                    
                     for i in range(5):
                         self.cmd_vel.publish(move_cmd)
                         r.sleep()
@@ -140,39 +138,25 @@ class Lab2():
                     self.rotate_flag = False
                     
                     if abs(position.y)<0.2:
-                        # while abs(position.y)>0.05:
-                        #     move_cmd = Twist()
-                        #     move_cmd.linear.x  = angular_speed
-                        #     self.cmd_vel.publish(move_cmd)
-                        #     r.sleep()
                         print("reached M line!!!")
                         have_been_here = False
-                        print
-                        print
-                        print(len(self.saved_pos))
-                        print
-                        print
-                        current_position_dis = self.getDistance(position,destination)
-                        print("distance at this point is: ", current_position_dis)
                         we_are_closer = True
+                        # print(len(self.saved_pos))
+                        current_position_dis = self.getDistance(position,destination)
+                        # print("distance at this point is: ", current_position_dis)
+                        
                         for i in range(len(self.saved_pos)):
                             curpos = self.saved_pos[i]
-                            print(curpos)
-                            print(position)
-                            print(position.x, position.y)
-                            print("what the f, why can't I do this")
-                            print(curpos.x, curpos.y)
-                            print("what the f2")
                             tmp_dis = self.getDistance(position,curpos)
                             tmp_dest_dis = self.getDistance(destination,curpos)
                             print("current distance is: ", tmp_dis)
                             if tmp_dest_dis < current_position_dis:
                                 we_are_closer = False
                                 break
-                            if  tmp_dis< 0.5:
+                            if  tmp_dis < 0.5:
                                 have_been_here = True
                                 print("I have been to this place")
-                                if i==0:
+                                if i == 0:
                                     print("Noob, you cannot solve this")
                                     self.shutdown()
                                     return
@@ -218,7 +202,6 @@ class Lab2():
         except (tf.Exception, tf.ConnectivityException, tf.LookupException):
             rospy.loginfo("TF Exception")
             return
-
         return (Point(*trans), quat_to_angle(Quaternion(*rot)))
         
     def shutdown(self):
@@ -231,4 +214,4 @@ if __name__ == '__main__':
     try:
         Lab2()
     except:
-        rospy.loginfo("Out-and-Back node terminated.")
+        rospy.loginfo("Lab2 node terminated.")
