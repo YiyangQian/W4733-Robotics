@@ -53,7 +53,7 @@ class Lab2():
         r = rospy.Rate(rate)
         
         # Set the forward linear speed to 0.15 meters per second 
-        linear_speed = 0.15
+        linear_speed = 0.4
 
         # Set the rotation speed in radians per second
         angular_speed = 0.5
@@ -103,55 +103,55 @@ class Lab2():
                 self.cmd_vel.publish(move_cmd)
                 r.sleep()
                 (position, rotation) = self.get_odom()
-                if self.g_range_ahead < 0.8:
+                if self.g_range_ahead < 1.3:
                     is_following_m_line = False
                     
                     self.saved_pos.append(position)
 
             else:
                 move_cmd = Twist()
-                if self.g_range_ahead < 0.8:
+                if self.g_range_ahead < 1.3:
                     # self.rotateTillNotBlocked(angular_speed)
                     move_cmd = Twist()
                     move_cmd.angular.z = angular_speed
-                    self.cmd_vel.publish(move_cmd)
-                    r.sleep()
+                    
+                    for i in range(3):
+                        self.cmd_vel.publish(move_cmd)
+                        r.sleep()
                     self.rotate_flag = True
                     (position, rotation) = self.get_odom()
-                elif self.g_range_ahead > 1.2 and not self.rotate_flag:
+                elif self.g_range_ahead > 2 and not self.rotate_flag:
                     # right turning 
                     print("we have entered right turn")
                     move_cmd.angular.z = -1 * angular_speed
-                    self.cmd_vel.publish(move_cmd)
-                    r.sleep()
+                    
+                    for i in range(3):
+                        self.cmd_vel.publish(move_cmd)
+                        r.sleep()
                     (position, rotation) = self.get_odom()
                 else:
                     move_cmd.linear.x = linear_speed
-                    self.cmd_vel.publish(move_cmd)
-                    r.sleep()
+                    
+                    for i in range(5):
+                        self.cmd_vel.publish(move_cmd)
+                        r.sleep()
                     (position, rotation) = self.get_odom()
                     self.rotate_flag = False
                     
-                    # if abs(position.y)<0.15:
-                    #     have_been_here = False
-                    #     for i in range(len(self.saved_pos)):
-                    #         if getDistance(position,self.saved_pos[i]) < 0.15:
-                    #             have_been_here = True
-                    #             break
-                    #     if not have_been_here:
-                    #         self.saved_pos.append(position)
+                    if abs(position.y)<0.3:
+                        print("reached M line!!!")
+                        have_been_here = False
+                        for i in range(len(self.saved_pos)):
+                            print(i,self.saved_pos[i])
+                            if getDistance(position,self.saved_pos[i]) < 0.3:
+                                have_been_here = True
+                                break
+                        print( "current have been here flag is: ", have_been_here )
+                        if not have_been_here:
+                            self.saved_pos.append(position)
 
-                    #         is_following_m_line = True
-
-    def rotateTillNotBlocked(self, angular_speed):
-        print("rotating")
-        while(self.g_range_ahead < 0.8): 
-            move_cmd = Twist()
-            move_cmd.angular.z = angular_speed
-            self.cmd_vel.publish(move_cmd)
-            r.sleep()
-        self.rotate_flag = True
-        print("finish rotate")
+                            is_following_m_line = True
+                            print("status back to going straight in M line")
     
     def getDistance(self, position, destination):
         print(position.x, position.y)
