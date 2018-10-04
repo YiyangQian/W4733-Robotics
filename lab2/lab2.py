@@ -1,24 +1,5 @@
 #!/usr/bin/env python
 
-""" odom_out_and_back.py - Version 1.1 2013-12-20
-    A basic demo of using the /odom topic to move a robot a given distance
-    or rotate through a given angle.
-    Created for the Pi Robot Project: http://www.pirobot.org
-    Copyright (c) 2012 Patrick Goebel.  All rights reserved.
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.5
-    
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details at:
-    
-    http://www.gnu.org/licenses/gpl.html
-      
-"""
-
 import rospy
 import sys
 from geometry_msgs.msg import Twist, Point, Quaternion
@@ -42,21 +23,20 @@ class Lab2():
         # Connect the node with sensor
         scan_sub = rospy.Subscriber('scan', LaserScan, self.scan_callback)
 
-
         # Set rospy to execute a shutdown function when exiting       
         rospy.on_shutdown(self.shutdown)
 
         # Publisher to control the robot's speed
-        self.cmd_vel = rospy.Publisher('cmd_vel', Twist, queue_size=200)
+        self.cmd_vel = rospy.Publisher('cmd_vel', Twist, queue_size=5)
         
         # How fast will we update the robot's movement?
         rate = 5
         
         # Set the equivalent ROS rate variable
-        r = rospy.Rate(rate)
+        self.r = rospy.Rate(rate)
         
         # Set the forward linear speed to 0.15 meters per second 
-        linear_speed = 0.4
+        self.linear_speed = 0.4
 
         # Set the rotation speed in radians per second
         angular_speed = 0.5
@@ -85,7 +65,6 @@ class Lab2():
                 rospy.loginfo("Cannot find transform between /odom and /base_link or /base_footprint")
                 rospy.signal_shutdown("tf Exception")  
 
-
         # Initialize the position variable as a Point type
         position = Point()
 
@@ -96,60 +75,47 @@ class Lab2():
 
         while(self.getDistance(position, destination) > 0.3):
             if is_following_m_line:
-                move_cmd = Twist()
-                move_cmd.linear.x = linear_speed
-                self.cmd_vel.publish(move_cmd)
-                r.sleep()
+                print("moving forward")
+                self.moveForward(1)
 
                 (position, rotation) = self.get_odom()
+ 
                 if self.g_range_ahead < 1.3:
                     is_following_m_line = False
                     # save the position of leaving m-line
                     self.saved_pos.append(position)
 
             else:
-                move_cmd = Twist()
                 if self.g_range_ahead < 1.3:
                     # left turning
                     print("turning left")
-                    move_cmd.angular.z = angular_speed
-                    for i in range(3):
-                        self.cmd_vel.publish(move_cmd)
-                        r.sleep()
+                    self.rotate(angular_speed, 3)
                     self.rotate_flag = True
                     (position, rotation) = self.get_odom()
                 
                 elif self.g_range_ahead > 2 and not self.rotate_flag:
                     # right turning 
                     print("turning right")
-                    move_cmd.angular.z = -1 * angular_speed
-                    for i in range(3):
-                        self.cmd_vel.publish(move_cmd)
-                        r.sleep()
+                    self.rotate(-1 * angular_speed, 3)
                     (position, rotation) = self.get_odom()
                 
                 else:
                     # after turn left, must move forward; current distance to object is between 1.3 and 2.0
-                    move_cmd.linear.x = linear_speed
-                    for i in range(5):
-                        self.cmd_vel.publish(move_cmd)
-                        r.sleep()
+                    print("moving forward")
+                    self.moveForward(5)
                     (position, rotation) = self.get_odom()
                     self.rotate_flag = False
                     
                     if abs(position.y)<0.2:
-                        print("reached M line!!!")
+                        print("reached M line")
                         have_been_here = False
                         we_are_closer = True
-                        # print(len(self.saved_pos))
                         current_position_dis = self.getDistance(position,destination)
-                        # print("distance at this point is: ", current_position_dis)
                         
                         for i in range(len(self.saved_pos)):
                             curpos = self.saved_pos[i]
                             tmp_dis = self.getDistance(position,curpos)
                             tmp_dest_dis = self.getDistance(destination,curpos)
-                            print("current distance is: ", tmp_dis)
                             if tmp_dest_dis < current_position_dis:
                                 we_are_closer = False
                                 break
@@ -165,36 +131,42 @@ class Lab2():
                         print ("Are we closer? ", we_are_closer)
                         if (not have_been_here) and we_are_closer:
                             self.saved_pos.append(position)
-
                             is_following_m_line = True
                             print("status back to going straight in M line")
 
-                            while abs(rotation)> angular_tolerance:
-
+                            # turn around to head to destination                            
+                            while abs(rotation) > angular_tolerance:
                                 if abs(rotation)< angular_tolerance:
                                     break
                                 else:
-                                    move_cmd = Twist()
-                                    move_cmd.angular.z = angular_speed
-                                    self.cmd_vel.publish(move_cmd)
-                                    r.sleep()
+                                    self.rotate(angular_speed, 1)
                                     (position, rotation) = self.get_odom()
+
+    def rotate(self, angular_speed, steps):
+        move_cmd = Twist()
+        move_cmd.angular.z = angular_speed
+        for i in range(steps):
+            self.cmd_vel.publish(move_cmd)
+            self.r.sleep()
+
+    def moveForward(self, steps):
+        move_cmd = Twist()
+        move_cmd.linear.x = self.linear_speed
+        for i in range(steps):
+            self.cmd_vel.publish(move_cmd)
+            self.r.sleep()
     
     def getDistance(self, position, destination):
-        print(position.x, position.y)
         result =  sqrt((position.x- destination.x)**2+ ( position.y-destination.y)**2)
         return result
         
-
     def scan_callback(self, msg):
         min_dis = sys.float_info.max
         for i in msg.ranges:
             if not isnan(i):
                 min_dis = min(min_dis, i)
         self.g_range_ahead = min_dis
-        print(min_dis)
-
-        
+      
     def get_odom(self):
         # Get the current transform between the odom and base frames
         try:
@@ -213,5 +185,6 @@ class Lab2():
 if __name__ == '__main__':
     try:
         Lab2()
-    except:
+    except Exception as e:
+        print(e)
         rospy.loginfo("Lab2 node terminated.")
