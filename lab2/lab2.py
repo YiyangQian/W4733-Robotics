@@ -27,7 +27,7 @@ class Lab2():
         rospy.on_shutdown(self.shutdown)
 
         # Publisher to control the robot's speed
-        self.cmd_vel = rospy.Publisher('cmd_vel', Twist, queue_size=5)
+        self.cmd_vel = rospy.Publisher('cmd_vel', Twist, queue_size=200)
         
         # How fast will we update the robot's movement?
         rate = 5
@@ -106,7 +106,7 @@ class Lab2():
                     (position, rotation) = self.get_odom()
                     self.rotate_flag = False
                     
-                    if abs(position.y)<0.2:
+                    if abs(position.y) < 0.2:
                         print("reached M line")
                         have_been_here = False
                         we_are_closer = True
@@ -122,7 +122,7 @@ class Lab2():
                             if  tmp_dis < 0.5:
                                 have_been_here = True
                                 print("I have been to this place")
-                                if i == 0:
+                                if i == 0 and len(self.saved_pos) > 1:
                                     print("Noob, you cannot solve this")
                                     self.shutdown()
                                     return
