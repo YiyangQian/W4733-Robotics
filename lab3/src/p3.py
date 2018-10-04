@@ -18,18 +18,6 @@ class P3():
         
         # Create a list to hold the waypoint poses
         waypoints = list()
-        
-        quaternions = list()
-        
-        # First define the corner orientations as Euler angles
-        euler_angles = (pi/2, pi, 3*pi/2, 0)
-        
-        # Then convert the angles to quaternions
-        for angle in euler_angles:
-            q_angle = quaternion_from_euler(0, 0, angle, axes='sxyz')
-            q = Quaternion(*q_angle)
-            quaternions.append(q)
-
         total_length = 0
 
         convex_hull_array = calculate_convex_hull([[-18,-18],[-18,18],[18,-18],[18,18]])
@@ -37,7 +25,6 @@ class P3():
             total_length += convex_hull_array[i].shape[0]
             this_convex_waypoints = list()
             current_convex_hull = convex_hull_array[i]
-            print(current_convex_hull)
             for j in range(current_convex_hull.shape[0]):
                 new_x = current_convex_hull[j][0]/100
                 new_y = current_convex_hull[j][1]/100
@@ -58,7 +45,6 @@ class P3():
                 next_x = current_convex_hull[next_index][0]/100
                 next_y = current_convex_hull[next_index][1]/100
                 self.edges.add(((cur_x,cur_y),(next_x, next_y)))
-        print(len(self.edges))
         
         # Set a visualization marker at each waypoint        
         
@@ -89,6 +75,7 @@ class P3():
             rospy.sleep(0.15)
 
         convex_hull_array.append([[0,0]])
+        convex_hull_array.append([[600,0]])
 
         for i in range(len(convex_hull_array)):
             current_convex_hull = convex_hull_array[i]
@@ -157,7 +144,6 @@ class P3():
         return True
     
     def isIntersected(self, p1, p2, p3, p4):
-        #print("p1 ", p1, "p2 ", p2, "p3 ", p3, "p4 ", p4)
         res = False
         if (max(p1[0], p2[0]) > min(p3[0], p4[0])
         and max(p3[0], p4[0]) > min(p1[0], p2[0])
@@ -169,7 +155,6 @@ class P3():
                 res = False
         else:
             res = False
-        # print(res)
         return res
 
     def cross(self, p1, p2, p3):
