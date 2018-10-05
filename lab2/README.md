@@ -9,7 +9,7 @@ load specified world (the path to world file should be absolute address)
 roslaunch turtlebot_gazebo turtlebot_world.launch world_file:=$PWD/bug2_0.world
 ```
 
-Then, open a new terminal and run the python program
+Then, open a new terminal at the path of lab2.py and run following
 ```
 python lab2.py cmd_vel:=cmd_vel_mux/input/teleop
 ```
