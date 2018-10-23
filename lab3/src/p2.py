@@ -56,8 +56,11 @@ class MoveBaseSquare():
         # Create a list to hold the waypoint poses
         waypoints = list()
         
+        total_length = 0
+
         convex_hull_array = calculate_convex_hull([[-18,-18],[-18,18],[18,-18],[18,18]])
         for i in range(len(convex_hull_array)):
+            total_length += convex_hull_array[i].shape[0]
             this_convex_waypoints = list()
             current_convex_hull = convex_hull_array[i]
             print(current_convex_hull)
@@ -69,7 +72,7 @@ class MoveBaseSquare():
 
         # Initialize the visualization markers for RViz
 
-        self.init_markers(len(convex_hull_array))
+        self.init_markers(total_length)
         
         point_1 = Pose(Point(square_size, 0.0, 0.0), quaternions[0])
         print(point_1)
@@ -91,16 +94,26 @@ class MoveBaseSquare():
         rospy.loginfo("Connected to move base server")
         rospy.loginfo("Starting navigation test")
         
+        cnt = 0
         for i in range(len(convex_hull_array)):
             #self.markers.points = list()
-            for waypoint in waypoints[i]:           
-                p = Point()
-                p = waypoint.position
+            for j in range(len(waypoints[i]) -1 ):           
+
+                p = waypoints[i][j].position
+                q = waypoints[i][j+1].position
+
                 self.marker_array.markers[i].points.append(p)
+                self.marker_array.markers[i].points.append(q)
+                self.marker_pub.publish(self.marker_array.markers[i])
+                cnt+=1
+                rospy.sleep(0.1)
 
+            self.marker_array.markers[i].points.append(waypoints[i][-1].position)
             self.marker_array.markers[i].points.append(waypoints[i][0].position)
-
             self.marker_pub.publish(self.marker_array.markers[i])
+            cnt+=1
+            rospy.sleep(0.1)
+
         
     def init_markers(self, convex_size):
         # Set up our waypoint markers
@@ -108,11 +121,11 @@ class MoveBaseSquare():
         self.marker_array = MarkerArray()
         self.marker_pub = rospy.Publisher('vgraph_markers', Marker, queue_size=5)
 
-        marker_scale = 0.03
+        marker_scale = 0.015
         marker_lifetime = 0 # 0 is forever
         marker_ns = 'vgraph'
         marker_id = 0
-        marker_color = {'r': 1.0, 'g': 0, 'b': 0, 'a': 1.0}
+        marker_color = {'r': 0, 'g': 0, 'b': 1, 'a': 1.0}
         
 
         for i in range(convex_size):

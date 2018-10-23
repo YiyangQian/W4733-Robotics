@@ -30,16 +30,22 @@ class P3():
             q = Quaternion(*q_angle)
             quaternions.append(q)
 
+        total_length = 0
         convex_hull_array = calculate_convex_hull([[-18,-18],[-18,18],[18,-18],[18,18]])
         for i in range(len(convex_hull_array)):
+            total_length += convex_hull_array[i].shape[0]
             this_convex_waypoints = list()
             current_convex_hull = convex_hull_array[i]
             print(current_convex_hull)
             for j in range(current_convex_hull.shape[0]):
                 new_x = current_convex_hull[j][0]/100
                 new_y = current_convex_hull[j][1]/100
-                this_convex_waypoints.append(Pose(Point( new_x, new_y , 0.0), quaternions[0]))                    
+                this_convex_waypoints.append(Pose(Point( new_x, new_y , 0.0), quaternions[0]))
             waypoints.append(this_convex_waypoints)
+
+        # Initialize the visualization markers for RViz
+
+        self.init_markers(total_length)
 
         self.edges = set()
         for i in range(len(convex_hull_array)):
@@ -71,21 +77,29 @@ class P3():
         self.move_base.wait_for_server(rospy.Duration(60))
         
 
+        cnt = 0
         for i in range(len(convex_hull_array)):
             #self.markers.points = list()
-            for waypoint in waypoints[i]:           
-                p = Point()
-                p = waypoint.position
+            for j in range(len(waypoints[i]) -1 ):           
+
+                p = waypoints[i][j].position
+                q = waypoints[i][j+1].position
+
                 self.marker_array.markers[i].points.append(p)
+                self.marker_array.markers[i].points.append(q)
+                self.marker_pub.publish(self.marker_array.markers[i])
+                cnt+=1
+                rospy.sleep(0.15)
 
+            self.marker_array.markers[i].points.append(waypoints[i][-1].position)
             self.marker_array.markers[i].points.append(waypoints[i][0].position)
-
             self.marker_pub.publish(self.marker_array.markers[i])
-            rospy.sleep(0.5)
+            cnt+=1
+            rospy.sleep(0.15)
 
         for i in range(len(convex_hull_array)):
             current_convex_hull = convex_hull_array[i]
-            for j in range(len(current_convex_hull)):
+            for j in range(len(convex_hull_array[i])):
                 p1 = current_convex_hull[j]
                 for m in range(len(convex_hull_array)):
                     if (m != i):
@@ -94,10 +108,10 @@ class P3():
                             if self.isLineExisting(p1, p2):
                                 # print(p1,p2, "I am here ", self.marker_id)
                                 markers = Marker()
-                                marker_scale = 0.03
+                                marker_scale = 0.015
                                 marker_lifetime = 0 # 0 is forever
                                 marker_ns = 'vgraph'
-                                marker_color = {'r': 1.0, 'g': 0, 'b': 0, 'a': 1.0}
+                                marker_color = {'r': 0, 'g': 0, 'b': 1, 'a': 1.0}
                                 markers.ns = 'vgraph'
                                 markers.id = self.marker_id
                                 markers.type = Marker.LINE_STRIP
@@ -119,7 +133,7 @@ class P3():
                                 self.marker_array.markers.append(markers)  
                                 self.marker_pub.publish(self.marker_array.markers[-1])
                                 self.marker_id +=1
-                                rospy.sleep(0.5)
+                                rospy.sleep(0.15)
 
 
     def init_markers(self, convex_size):
@@ -128,11 +142,11 @@ class P3():
         self.marker_array = MarkerArray()
         self.marker_pub = rospy.Publisher('vgraph_markers', Marker, queue_size=5)
 
-        marker_scale = 0.03
+        marker_scale = 0.015
         marker_lifetime = 0 # 0 is forever
         marker_ns = 'vgraph'
         self.marker_id = 0
-        marker_color = {'r': 1.0, 'g': 0, 'b': 0, 'a': 1.0}
+        marker_color = {'r': 0, 'g': 0, 'b': 1, 'a': 1.0}
         
 
         for i in range(convex_size):
@@ -172,11 +186,11 @@ class P3():
         return True
     
     def isIntersected(self, p1, p2, p3, p4):
-        print("p1 ", p1, "p2 ", p2, "p3 ", p3, "p4 ", p4)
+        #print("p1 ", p1, "p2 ", p2, "p3 ", p3, "p4 ", p4)
         res = False
         if (max(p1[0], p2[0]) > min(p3[0], p4[0])
         and max(p3[0], p4[0]) > min(p1[0], p2[0])
-        and max(p1[1], p2[1]) > min(p3[1], p3[1])
+        and max(p1[1], p2[1]) > min(p3[1], p4[1])
         and max(p3[1], p4[1]) > min(p1[1], p2[1])):
             if (self.cross(p1, p2, p3) * self.cross(p1, p2, p4) < 0 and self.cross(p3, p4, p1) * self.cross(p3, p4, p2) < 0):
                 res = True
