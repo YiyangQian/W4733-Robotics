@@ -31,6 +31,7 @@ class P3():
             quaternions.append(q)
 
         total_length = 0
+
         convex_hull_array = calculate_convex_hull([[-18,-18],[-18,18],[18,-18],[18,18]])
         for i in range(len(convex_hull_array)):
             total_length += convex_hull_array[i].shape[0]
@@ -40,12 +41,12 @@ class P3():
             for j in range(current_convex_hull.shape[0]):
                 new_x = current_convex_hull[j][0]/100
                 new_y = current_convex_hull[j][1]/100
-                this_convex_waypoints.append(Pose(Point( new_x, new_y , 0.0), quaternions[0]))
+                this_convex_waypoints.append(Point(new_x, new_y , 0.0))
             waypoints.append(this_convex_waypoints)
 
         # Initialize the visualization markers for RViz
 
-        self.init_markers(total_length)
+        self.init_markers()
 
         self.edges = set()
         for i in range(len(convex_hull_array)):
@@ -59,9 +60,6 @@ class P3():
                 self.edges.add(((cur_x,cur_y),(next_x, next_y)))
         print(len(self.edges))
         
-        # Initialize the visualization markers for RViz
-
-        self.init_markers(len(convex_hull_array))
         # Set a visualization marker at each waypoint        
         
             
@@ -77,25 +75,20 @@ class P3():
         self.move_base.wait_for_server(rospy.Duration(60))
         
 
-        cnt = 0
         for i in range(len(convex_hull_array)):
             #self.markers.points = list()
             for j in range(len(waypoints[i]) -1 ):           
 
-                p = waypoints[i][j].position
-                q = waypoints[i][j+1].position
+                p = waypoints[i][j]
+                q = waypoints[i][j+1]
+                self.publish_one_edge(p,q)
+                
+                rospy.sleep(0.1)
 
-                self.marker_array.markers[i].points.append(p)
-                self.marker_array.markers[i].points.append(q)
-                self.marker_pub.publish(self.marker_array.markers[i])
-                cnt+=1
-                rospy.sleep(0.15)
-
-            self.marker_array.markers[i].points.append(waypoints[i][-1].position)
-            self.marker_array.markers[i].points.append(waypoints[i][0].position)
-            self.marker_pub.publish(self.marker_array.markers[i])
-            cnt+=1
+            self.publish_one_edge(waypoints[i][-1],waypoints[i][0])
             rospy.sleep(0.15)
+
+        convex_hull_array.append([[0,0]])
 
         for i in range(len(convex_hull_array)):
             current_convex_hull = convex_hull_array[i]
@@ -106,69 +99,47 @@ class P3():
                         for n in range(len(convex_hull_array[m])):
                             p2 = convex_hull_array[m][n]
                             if self.isLineExisting(p1, p2):
-                                # print(p1,p2, "I am here ", self.marker_id)
-                                markers = Marker()
-                                marker_scale = 0.015
-                                marker_lifetime = 0 # 0 is forever
-                                marker_ns = 'vgraph'
-                                marker_color = {'r': 0, 'g': 0, 'b': 1, 'a': 1.0}
-                                markers.ns = 'vgraph'
-                                markers.id = self.marker_id
-                                markers.type = Marker.LINE_STRIP
-                                markers.action = Marker.ADD
-                                markers.lifetime = rospy.Duration(marker_lifetime)
-                                markers.scale.x = marker_scale
-                                markers.scale.y = marker_scale
-                                markers.color.r = marker_color['r']
-                                markers.color.g = marker_color['g']
-                                markers.color.b = marker_color['b']
-                                markers.color.a = marker_color['a']
-                                
-                                markers.header.frame_id = 'odom'
-                                markers.header.stamp = rospy.Time.now()
-                                markers.points = list()
-                                markers.points.append(Point(p1[0]/100,p1[1]/100,0))
-                                markers.points.append(Point(p2[0]/100,p2[1]/100,0))
-                                
-                                self.marker_array.markers.append(markers)  
-                                self.marker_pub.publish(self.marker_array.markers[-1])
-                                self.marker_id +=1
+                                self.publish_one_edge(Point(p1[0]/100,p1[1]/100,0),Point(p2[0]/100,p2[1]/100,0))
                                 rospy.sleep(0.15)
 
 
-    def init_markers(self, convex_size):
+    def init_markers(self):
         # Set up our waypoint markers
         # Define a marker publisher.
         self.marker_array = MarkerArray()
-        self.marker_pub = rospy.Publisher('vgraph_markers', Marker, queue_size=5)
+        self.marker_pub = rospy.Publisher('vgraph_markers', Marker, queue_size=20)
+        self.marker_id = 0
 
+    def publish_one_edge(self,p1,p2):
         marker_scale = 0.015
         marker_lifetime = 0 # 0 is forever
         marker_ns = 'vgraph'
-        self.marker_id = 0
+        
         marker_color = {'r': 0, 'g': 0, 'b': 1, 'a': 1.0}
         
+        markers = Marker()
+        markers.ns = marker_ns
+        markers.id = self.marker_id
+        markers.type = Marker.LINE_STRIP
+        markers.action = Marker.ADD
+        markers.lifetime = rospy.Duration(marker_lifetime)
+        markers.scale.x = marker_scale
+        markers.scale.y = marker_scale
+        markers.color.r = marker_color['r']
+        markers.color.g = marker_color['g']
+        markers.color.b = marker_color['b']
+        markers.color.a = marker_color['a']
+        
+        markers.header.frame_id = 'odom'
+        markers.header.stamp = rospy.Time.now()
+        markers.points = list()
+        markers.points.append(Point(p1.x,p1.y,0))
+        markers.points.append(Point(p2.x,p2.y,0))
 
-        for i in range(convex_size):
-            # Initialize the marker points list.
-            markers = Marker()
-            markers.ns = marker_ns
-            markers.id = self.marker_id
-            markers.type = Marker.LINE_STRIP
-            markers.action = Marker.ADD
-            markers.lifetime = rospy.Duration(marker_lifetime)
-            markers.scale.x = marker_scale
-            markers.scale.y = marker_scale
-            markers.color.r = marker_color['r']
-            markers.color.g = marker_color['g']
-            markers.color.b = marker_color['b']
-            markers.color.a = marker_color['a']
-            
-            markers.header.frame_id = 'odom'
-            markers.header.stamp = rospy.Time.now()
-            markers.points = list()
-            self.marker_id +=1
-            self.marker_array.markers.append(markers)
+
+        self.marker_array.markers.append(markers)
+        self.marker_pub.publish(self.marker_array.markers[-1])
+        self.marker_id +=1
 
     def shutdown(self):
         rospy.loginfo("Stopping the robot...")

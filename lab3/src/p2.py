@@ -60,7 +60,7 @@ class MoveBaseSquare():
 
         # Initialize the visualization markers for RViz
 
-        self.init_markers(total_length)
+        self.init_markers()
 
         # Publisher to manually control the robot (e.g. to stop it, queue_size=5)
         self.cmd_vel_pub = rospy.Publisher('cmd_vel', Twist, queue_size=5)
@@ -87,7 +87,7 @@ class MoveBaseSquare():
             rospy.sleep(0.1)
 
         
-    def init_markers(self, convex_size):
+    def init_markers(self):
         # Set up our waypoint markers
         # Define a marker publisher.
         self.marker_array = MarkerArray()
