@@ -36,6 +36,8 @@ class P4():
         self.init_markers()
 
         self.edges = set()
+        self.idx_edge_map = {}
+
         for i in range(len(convex_hull_array)):
             current_convex_hull = convex_hull_array[i]
             for j in range(current_convex_hull.shape[0]):
@@ -59,7 +61,7 @@ class P4():
         
         # Wait 60 seconds for the action server to become available
         self.move_base.wait_for_server(rospy.Duration(60))
-        self.edges_matrix = [[ 9999999999 for i in range(27)] for j in range(27)]
+        self.edges_matrix = [[ 99999 for i in range(27)] for j in range(27)]
 
         self.id_tracker = 0
         self.id_map = {}
@@ -105,30 +107,46 @@ class P4():
             rospy.sleep(0.15)
 
         
-        print(self.edges_matrix)
+        #print(self.edges_matrix)
         self.run_floyd()
-        print(self.prev_matrix)
+        #print(self.prev_matrix)
         start_idx = self.id_map[(0,0)]
         end_idx = self.id_map[(600,0)]
+
         cur_idx = start_idx
         prev_point = (0,0)
-        while cur_idx != end_idx and cur_idx >-1:
-            print(cur_idx)
-            for i in self.id_map:
-                if self.id_map[i]==cur_idx:
-                    print(i)
-                    p = prev_point
-                    q = i
-                    self.publish_route(Point(p[0]/100,p[1]/100,0),Point(q[0]/100,q[1]/100,0))
+        print(start_idx, end_idx)
+        print(self.edges_matrix[start_idx][end_idx])
+        
+        
+        path_arr = [start_idx]
+        path_arr.extend(self.get_path(start_idx, end_idx))
+        path_arr.append(end_idx)
 
-                    prev_point = i
+        print(path_arr)
+        for i in range(len(path_arr)-1):
+            p = self.idx_edge_map[path_arr[i]]
+            q = self.idx_edge_map[path_arr[i+1]]
+            self.publish_route(Point(p[0]/100,p[1]/100,0),Point(q[0]/100,q[1]/100,0))
+            rospy.sleep(0.15)
 
-                    print()
-                    break
-            cur_idx =  self.prev_matrix[cur_idx][end_idx]
 
-        self.publish_route(Point(prev_point[0]/100,prev_point[1]/100,0),Point(6,0,0))
 
+    def get_path(self, start_idx, end_idx):
+        result_array = []
+        if self.prev_matrix[start_idx][end_idx] == -1:
+            return result_array
+        else:
+            middle = self.prev_matrix[start_idx][end_idx]
+            print(middle)
+            left = self.get_path(start_idx, middle)
+            right = self.get_path(middle, end_idx)
+            if len(left)>0:
+                result_array.extend(left)
+            result_array.append(middle)
+            if len(right)>0:
+                result_array.extend(right)
+            return result_array
 
     def create_edge(self,p1,p2):
         idx1 = self.id_map[(p1[0], p1[1])]
@@ -142,15 +160,18 @@ class P4():
         self.prev_matrix = [[-1 for i in range(27)] for j in range(27)]
         for k in range(27):
             for i in range(27):
-                for j in range(27):
+                for j in range(i+1, 27):
                     if i!=j:
                         if self.edges_matrix[i][j] > self.edges_matrix[i][k] + self.edges_matrix[k][j]:
                             self.edges_matrix[i][j] = self.edges_matrix[i][k] + self.edges_matrix[k][j]
+                            self.edges_matrix[j][i] = self.edges_matrix[i][k] + self.edges_matrix[k][j]
                             self.prev_matrix[i][j] = k
+                            self.prev_matrix[j][i] = k
 
     def assign_id(self, p):
         if p not in self.id_map:
             self.id_map[p] = self.id_tracker
+            self.idx_edge_map[self.id_tracker] = p
             self.id_tracker += 1
 
     def init_markers(self):
