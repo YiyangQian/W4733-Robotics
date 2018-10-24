@@ -11,7 +11,7 @@ from convex_hull import *
 
 
 class P4():
-    def __init__(self):
+    def __init__(self, display):
         rospy.init_node('p3', anonymous=False)
         
         rospy.on_shutdown(self.shutdown)
@@ -86,9 +86,10 @@ class P4():
                             self.assign_id((p2[0], p2[1]))
                             if self.isLineExisting(p1, p2):
                                 self.create_edge(p1,p2)
-                                self.publish_one_edge(Point(p1[0]/100,p1[1]/100,0),Point(p2[0]/100,p2[1]/100,0))
-                                rospy.sleep(0.15)
-        print(self.id_map)
+                                if display:
+                                    self.publish_one_edge(Point(p1[0]/100,p1[1]/100,0),Point(p2[0]/100,p2[1]/100,0))
+                                    rospy.sleep(0.15)
+        #print(self.id_map)
 
         for i in range(len(waypoints)):
             #self.markers.points = list()
@@ -97,14 +98,16 @@ class P4():
                 p = waypoints[i][j]
                 q = waypoints[i][j+1]
                 self.create_edge((p[0],p[1]),(q[0],q[1]))
-                self.publish_one_edge(Point(p[0]/100,p[1]/100,0),Point(q[0]/100,q[1]/100,0))
-                rospy.sleep(0.15)
+                if display:
+                    self.publish_one_edge(Point(p[0]/100,p[1]/100,0),Point(q[0]/100,q[1]/100,0))
+                    rospy.sleep(0.15)
 
             p = waypoints[i][-1]
             q = waypoints[i][0]
             self.create_edge((p[0],p[1]),(q[0],q[1]))
-            self.publish_one_edge(Point(p[0]/100,p[1]/100,0),Point(q[0]/100,q[1]/100,0))
-            rospy.sleep(0.15)
+            if display:
+                self.publish_one_edge(Point(p[0]/100,p[1]/100,0),Point(q[0]/100,q[1]/100,0))
+                rospy.sleep(0.15)
 
         
         #print(self.edges_matrix)
@@ -115,21 +118,27 @@ class P4():
 
         cur_idx = start_idx
         prev_point = (0,0)
-        print(start_idx, end_idx)
-        print(self.edges_matrix[start_idx][end_idx])
+        #print(start_idx, end_idx)
+        #print(self.edges_matrix[start_idx][end_idx])
         
         
         path_arr = [start_idx]
         path_arr.extend(self.get_path(start_idx, end_idx))
         path_arr.append(end_idx)
 
-        print(path_arr)
+        self.map_position_array = []
+
+        #print(path_arr)
         for i in range(len(path_arr)-1):
+            
             p = self.idx_edge_map[path_arr[i]]
             q = self.idx_edge_map[path_arr[i+1]]
-            self.publish_route(Point(p[0]/100,p[1]/100,0),Point(q[0]/100,q[1]/100,0))
-            rospy.sleep(0.15)
-
+            self.map_position_array.append((p[0]/100,p[1]/100))
+            if display:
+                self.publish_route(Point(p[0]/100,p[1]/100,0),Point(q[0]/100,q[1]/100,0))
+                rospy.sleep(0.15)
+        p = self.idx_edge_map[path_arr[-1]]
+        self.map_position_array.append((p[0]/100,p[1]/100))
 
 
     def get_path(self, start_idx, end_idx):
@@ -138,7 +147,7 @@ class P4():
             return result_array
         else:
             middle = self.prev_matrix[start_idx][end_idx]
-            print(middle)
+            #print(middle)
             left = self.get_path(start_idx, middle)
             right = self.get_path(middle, end_idx)
             if len(left)>0:
@@ -281,6 +290,6 @@ class P4():
 
 if __name__ == '__main__':
     try:
-        P4()
+        P4(True)
     except rospy.ROSInterruptException:
         rospy.loginfo("Navigation test finished.")
