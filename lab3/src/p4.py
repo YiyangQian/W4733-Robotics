@@ -6,9 +6,7 @@ from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from tf.transformations import quaternion_from_euler
 from visualization_msgs.msg import Marker, MarkerArray
 from math import radians, pi, hypot
-
 from convex_hull import *
-
 
 class P4():
     def __init__(self, display):
@@ -32,7 +30,6 @@ class P4():
             waypoints.append(this_convex_waypoints)
 
         # Initialize the visualization markers for RViz
-
         self.init_markers()
 
         self.edges = set()
@@ -48,9 +45,6 @@ class P4():
                 next_y = current_convex_hull[next_index][1]/100
                 self.edges.add(((cur_x,cur_y),(next_x, next_y)))
         
-        # Set a visualization marker at each waypoint        
-        
-            
         # Publisher to manually control the robot (e.g. to stop it, queue_size=5)
         self.cmd_vel_pub = rospy.Publisher('cmd_vel', Twist, queue_size=5)
         
@@ -66,12 +60,8 @@ class P4():
         self.id_tracker = 0
         self.id_map = {}
 
-        
-
         convex_hull_array.append([[0,0]])
         convex_hull_array.append([[600,0]])
-
-
 
         for i in range(len(convex_hull_array)):
             current_convex_hull = convex_hull_array[i]
@@ -89,12 +79,9 @@ class P4():
                                 if display:
                                     self.publish_one_edge(Point(p1[0]/100,p1[1]/100,0),Point(p2[0]/100,p2[1]/100,0))
                                     rospy.sleep(0.15)
-        #print(self.id_map)
 
         for i in range(len(waypoints)):
-            #self.markers.points = list()
             for j in range(len(waypoints[i]) -1 ):           
-
                 p = waypoints[i][j]
                 q = waypoints[i][j+1]
                 self.create_edge((p[0],p[1]),(q[0],q[1]))
@@ -109,26 +96,16 @@ class P4():
                 self.publish_one_edge(Point(p[0]/100,p[1]/100,0),Point(q[0]/100,q[1]/100,0))
                 rospy.sleep(0.15)
 
-        
-        #print(self.edges_matrix)
         self.run_floyd()
-        #print(self.prev_matrix)
         start_idx = self.id_map[(0,0)]
         end_idx = self.id_map[(600,0)]
 
-        cur_idx = start_idx
-        prev_point = (0,0)
-        #print(start_idx, end_idx)
-        #print(self.edges_matrix[start_idx][end_idx])
-        
-        
         path_arr = [start_idx]
         path_arr.extend(self.get_path(start_idx, end_idx))
         path_arr.append(end_idx)
 
         self.map_position_array = []
 
-        #print(path_arr)
         for i in range(len(path_arr)-1):
             
             p = self.idx_edge_map[path_arr[i]]
@@ -147,7 +124,6 @@ class P4():
             return result_array
         else:
             middle = self.prev_matrix[start_idx][end_idx]
-            #print(middle)
             left = self.get_path(start_idx, middle)
             right = self.get_path(middle, end_idx)
             if len(left)>0:
@@ -254,7 +230,6 @@ class P4():
 
     def shutdown(self):
         rospy.loginfo("Stopping the robot...")
-        #self.cmd_vel_pub.publish(Twist())
         rospy.sleep(1)
     
     def isLineExisting(self, p1, p2):

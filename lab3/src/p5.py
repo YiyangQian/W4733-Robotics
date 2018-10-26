@@ -156,10 +156,6 @@ class Move():
 
 if __name__ == '__main__':
     try:
-        # p4 = P4(False)
-        # move_array = p4.map_position_array
-        # p4.shutdown()
-
         move_array = [(0, 0), (0.81999999999999995, 0.68000000000000005), (1.1799999999999999, 0.68000000000000005), (2.9300000000000002, 0.42999999999999999), (4.3200000000000003, 0.12), (6, 0)]
         print(move_array)
         Move(move_array)
