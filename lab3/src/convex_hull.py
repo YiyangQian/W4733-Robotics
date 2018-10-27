@@ -8,7 +8,7 @@ from scipy.spatial import ConvexHull
 from create_map import *
 
 def calculate_convex_hull(shift_vector):
-    obstacles = load_obstacles("/home/yiyang/catkin_ws/src/vgraph/data/world_obstacles.txt")
+    obstacles = load_obstacles("~/catkin_ws/src/vgraph/data/world_obstacles.txt")
     result_convex_hull_array = []
     for ob in obstacles:
         new_obstacle = None
