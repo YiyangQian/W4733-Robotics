@@ -28,7 +28,6 @@ class BiDirectionRRT(object):
                 return True
         return False
 
-    
     def getRRT(self, indicator):
         if indicator == 0:
             return self.rrt0, self.rrt1
