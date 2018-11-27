@@ -12,6 +12,7 @@ class Follower:
         self.cmd_vel_pub = rospy.Publisher('cmd_vel_mux/input/teleop',
         Twist, queue_size=1)
         self.twist = Twist()
+        self.r = rospy.Rate(5)
         #cv2.namedWindow("window", 1)
     
     def image_callback(self, msg):
@@ -51,32 +52,36 @@ class Follower:
 
         if M_blue['m00']>0:
             print("blue detected!")
-            for i in range(5):
-                self.twist.linear.x = 0.5
+            for i in range(2):
+                self.twist.linear.x = 0.3
                 self.twist.angular.z = -0.1
                 self.cmd_vel_pub.publish(self.twist)
-            for i in range(10):
-                self.twist.linear.x = 0.5
+                self.r.sleep()
+            for i in range(5):
+                self.twist.linear.x = 0.3
                 self.twist.angular.z = 0
                 self.cmd_vel_pub.publish(self.twist)
+                self.r.sleep()
 
         elif M_green['m00']>0:
             print("green detected!")
-            for i in range(5):
-                self.twist.linear.x = 0.5
+            for i in range(2):
+                self.twist.linear.x = 0.3
                 self.twist.angular.z = 0.1
                 self.cmd_vel_pub.publish(self.twist)
-            for i in range(10):
-                self.twist.linear.x = 0.5
+                self.r.sleep()
+            for i in range(5):
+                self.twist.linear.x = 0.3
                 self.twist.angular.z = 0
                 self.cmd_vel_pub.publish(self.twist)
+                self.r.sleep()
 
         elif M_yellow['m00'] > 0:
             cx = int(M_yellow['m10']/M_yellow['m00'])
             cy = int(M_yellow['m01']/M_yellow['m00'])
             cv2.circle(image, (cx, cy), 20, (0,0,255), -1)
             err = cx - w/2
-            self.twist.linear.x = 0.2
+            self.twist.linear.x = 0.5
             self.twist.angular.z = -float(err) / 100
             self.cmd_vel_pub.publish(self.twist)
         
