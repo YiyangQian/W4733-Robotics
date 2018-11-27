@@ -64,6 +64,6 @@ if __name__ == "__main__":
     start, goal = add_start_and_goal(args.start_goal_path, ax)
 
     # customize step as the third parameter here 
-    rrt = RRT(start, goal, 50, vertices)
+    rrt = RRT(start, goal, 25, vertices)
     rrt.buildTree()
     plt.show()
