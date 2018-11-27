@@ -31,17 +31,13 @@ class Follower:
         lower_green = numpy.array([35, 43, 46])
         upper_green = numpy.array([77, 255, 250])
 
-        lower_red1 = numpy.array([156, 43, 46])
-        upper_red1 = numpy.array([180, 255, 250])
-
-        lower_red2 = numpy.array([0, 43, 46])
-        upper_red2 = numpy.array([10, 255, 250])
+        lower_red = numpy.array([156, 43, 46])
+        upper_red = numpy.array([180, 255, 250])
 
         yellow_mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
         blue_mask = cv2.inRange(hsv, lower_blue, upper_blue)
         green_mask = cv2.inRange(hsv, lower_green, upper_green)
-        red_mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
-        red_mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
+        red_mask = cv2.inRange(hsv, lower_red, upper_red)
 
         h, w, d = image.shape
         search_top = 3*h/4
@@ -52,15 +48,16 @@ class Follower:
         blue_mask[search_bot:h, 0:w] = 0
         green_mask[0:search_top, 0:w] = 0
         green_mask[search_bot:h, 0:w] = 0
-
+        red_mask[0:search_top, 0:w] = 0
+        red_mask[search_bot:h, 0:w] = 0
 
         M_yellow = cv2.moments(yellow_mask)
         M_blue = cv2.moments(blue_mask)
         M_green = cv2.moments(green_mask)
-        M_red1 = cv2.moments(red_mask1)
-        M_red2 = cv2.moments(red_mask2)
+        M_red = cv2.moments(red_mask)
 
-        if M_red1['m00']>0 or M_red2['m00']>0:
+        if M_red['m00']>0:
+            print("stop")
             exit(0)
 
         elif M_blue['m00']>0:
@@ -83,7 +80,8 @@ class Follower:
             self.twist.linear.x = 0.5
             self.twist.angular.z = -float(err) / 100
             self.cmd_vel_pub.publish(self.twist)
-        
+        cv2.imshow("window", image)
+        cv2.waitKey(3)
 
 rospy.init_node('follower')
 follower = Follower()
