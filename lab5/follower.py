@@ -27,13 +27,13 @@ class Follower:
         mask[search_bot:h, 0:w] = 0
         M = cv2.moments(mask)
         if M['m00'] > 0:
-        cx = int(M['m10']/M['m00'])
-        cy = int(M['m01']/M['m00'])
-        cv2.circle(image, (cx, cy), 20, (0,0,255), -1)
-        err = cx - w/2
-        self.twist.linear.x = 0.2
-        self.twist.angular.z = -float(err) / 100
-        self.cmd_vel_pub.publish(self.twist)
+            cx = int(M['m10']/M['m00'])
+            cy = int(M['m01']/M['m00'])
+            cv2.circle(image, (cx, cy), 20, (0,0,255), -1)
+            err = cx - w/2
+            self.twist.linear.x = 0.2
+            self.twist.angular.z = -float(err) / 100
+            self.cmd_vel_pub.publish(self.twist)
         cv2.imshow("window", image)
         cv2.waitKey(3)
 
