@@ -12,7 +12,7 @@ class Follower:
         self.cmd_vel_pub = rospy.Publisher('cmd_vel_mux/input/teleop',
         Twist, queue_size=1)
         self.twist = Twist()
-        self.r = rospy.Rate(5)
+        self.r = rospy.Rate(1)
         #cv2.namedWindow("window", 1)
     
     def image_callback(self, msg):
@@ -31,9 +31,17 @@ class Follower:
         lower_green = numpy.array([35, 43, 46])
         upper_green = numpy.array([77, 255, 250])
 
+        lower_red1 = numpy.array([156, 43, 46])
+        upper_red1 = numpy.array([180, 255, 250])
+
+        lower_red2 = numpy.array([0, 43, 46])
+        upper_red2 = numpy.array([10, 255, 250])
+
         yellow_mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
         blue_mask = cv2.inRange(hsv, lower_blue, upper_blue)
         green_mask = cv2.inRange(hsv, lower_green, upper_green)
+        red_mask1 = cv2.inRange(hsv, lower_red1, upper_red1)
+        red_mask2 = cv2.inRange(hsv, lower_red2, upper_red2)
 
         h, w, d = image.shape
         search_top = 3*h/4
@@ -49,32 +57,23 @@ class Follower:
         M_yellow = cv2.moments(yellow_mask)
         M_blue = cv2.moments(blue_mask)
         M_green = cv2.moments(green_mask)
+        M_red1 = cv2.moments(red_mask1)
+        M_red2 = cv2.moments(red_mask2)
 
-        if M_blue['m00']>0:
+        if M_red1['m00']>0 or M_red2['m00']>0:
+            exit(0)
+
+        elif M_blue['m00']>0:
             print("blue detected!")
-            for i in range(2):
-                self.twist.linear.x = 0.3
-                self.twist.angular.z = -0.1
-                self.cmd_vel_pub.publish(self.twist)
-                self.r.sleep()
-            for i in range(5):
-                self.twist.linear.x = 0.3
-                self.twist.angular.z = 0
-                self.cmd_vel_pub.publish(self.twist)
-                self.r.sleep()
+            self.twist.linear.x = 0.5
+            self.twist.angular.z = -0.3
+            self.cmd_vel_pub.publish(self.twist)
 
         elif M_green['m00']>0:
             print("green detected!")
-            for i in range(2):
-                self.twist.linear.x = 0.3
-                self.twist.angular.z = 0.1
-                self.cmd_vel_pub.publish(self.twist)
-                self.r.sleep()
-            for i in range(5):
-                self.twist.linear.x = 0.3
-                self.twist.angular.z = 0
-                self.cmd_vel_pub.publish(self.twist)
-                self.r.sleep()
+            self.twist.linear.x = 0.5
+            self.twist.angular.z = 0.3
+            self.cmd_vel_pub.publish(self.twist)
 
         elif M_yellow['m00'] > 0:
             cx = int(M_yellow['m10']/M_yellow['m00'])
