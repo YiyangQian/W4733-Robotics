@@ -14,6 +14,7 @@ class Follower:
         self.twist = Twist()
         self.r = rospy.Rate(1)
         #cv2.namedWindow("window", 1)
+        self.flag = 0
     
     def image_callback(self, msg):
         #print("inside image_callback")
@@ -40,8 +41,8 @@ class Follower:
         red_mask = cv2.inRange(hsv, lower_red, upper_red)
 
         h, w, d = image.shape
-        search_top = 3*h/4
-        search_bot = 3*h/4 + 20
+        search_top = 7*h/8-15
+        search_bot = 7*h/8
         yellow_mask[0:search_top, 0:w] = 0
         yellow_mask[search_bot:h, 0:w] = 0
         blue_mask[0:search_top, 0:w] = 0
@@ -56,30 +57,43 @@ class Follower:
         M_green = cv2.moments(green_mask)
         M_red = cv2.moments(red_mask)
 
-        if M_red['m00']>0:
-            print("stop")
-            exit(0)
 
-        elif M_blue['m00']>0:
-            print("blue detected!")
-            self.twist.linear.x = 0.5
-            self.twist.angular.z = -0.3
+        if self.flag == 0:
+
+            if M_red['m00']>0:
+                print("stop")
+                self.flag = 40
+
+
+            elif M_blue['m00']>0:
+                print("blue detected!")
+                self.twist.linear.x = 0.5
+                self.twist.angular.z = -0.3
+                self.cmd_vel_pub.publish(self.twist)
+
+            elif M_green['m00']>0:
+                print("green detected!")
+                self.twist.linear.x = 0.5
+                self.twist.angular.z = 0.3
+                self.cmd_vel_pub.publish(self.twist)
+
+            elif M_yellow['m00'] > 0:
+                cx = int(M_yellow['m10']/M_yellow['m00'])
+                cy = int(M_yellow['m01']/M_yellow['m00'])
+                cv2.circle(image, (cx, cy), 20, (0,0,255), -1)
+                err = cx - w/2
+                self.twist.linear.x = 0.5
+                self.twist.angular.z = -float(err) / 100
+                self.cmd_vel_pub.publish(self.twist)
+        
+        elif self.flag>1:
+            self.cmd_vel_pub.publish(self.twist)
+            self.flag -= 1 
+        else:
+            self.twist.linear.x = 0
+            self.twist.angular.z = 0
             self.cmd_vel_pub.publish(self.twist)
 
-        elif M_green['m00']>0:
-            print("green detected!")
-            self.twist.linear.x = 0.5
-            self.twist.angular.z = 0.3
-            self.cmd_vel_pub.publish(self.twist)
-
-        elif M_yellow['m00'] > 0:
-            cx = int(M_yellow['m10']/M_yellow['m00'])
-            cy = int(M_yellow['m01']/M_yellow['m00'])
-            cv2.circle(image, (cx, cy), 20, (0,0,255), -1)
-            err = cx - w/2
-            self.twist.linear.x = 0.5
-            self.twist.angular.z = -float(err) / 100
-            self.cmd_vel_pub.publish(self.twist)
         cv2.imshow("window", image)
         cv2.waitKey(3)
 
