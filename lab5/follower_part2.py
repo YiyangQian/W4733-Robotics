@@ -64,7 +64,6 @@ class Follower:
                 print("stop")
                 self.flag = 40
 
-
             elif M_blue['m00']>0:
                 print("blue detected!")
                 self.twist.linear.x = 0.5
