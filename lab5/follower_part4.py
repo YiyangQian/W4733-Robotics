@@ -31,23 +31,6 @@ class Follower:
 
 
     def image_callback(self, msg):
-        #print("inside image_callback")
-        # image = self.bridge.imgmsg_to_cv2(msg,desired_encoding='bgr8')
-        # hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-        # lower_yellow = numpy.array([ 10, 10, 10])
-        # upper_yellow = numpy.array([255, 255, 250])
-
-        # yellow_mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
-        # yellow_mask_original = cv2.inRange(hsv, lower_yellow, upper_yellow)
-
-        # h, w, d = image.shape
-        # search_top = 7*h/8-15
-        # search_bot = 7*h/8
-        # yellow_mask[0:search_top, 0:w] = 0
-        # yellow_mask[search_bot:h, 0:w] = 0
-
-        # M_yellow = cv2.moments(yellow_mask)
-
         self.frame_count +=1
         image = self.bridge.imgmsg_to_cv2(msg,desired_encoding='bgr8')
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -62,11 +45,9 @@ class Follower:
         h, w, d = image.shape
         search_top = 7*h/8 -15 
         search_bot = 7*h/8
-        mask[0:search_top, 0:w] = 0
-        mask[search_bot:h, 0:w] = 0
+        mask[0:search_top, 0:w / 8 : 7 * w / 8] = 0
+        mask[search_bot:h, 0:w / 8 : 7 * w / 8] = 0
         M = cv2.moments(mask)
-
-        #print(mask is yellow_mask_original)
 
         if self.flag == 0:
             if M['m00']>0:
@@ -80,7 +61,7 @@ class Follower:
                 start_max, left_max, rigth_max =0,0,0
 
                 self.frame_count+=1
-                if self.frame_count<1800:
+                if self.frame_count < 1500:
                     left_res = cv2.matchTemplate(yellow_mask_original, self.left, cv2.TM_CCOEFF_NORMED)
                     right_res = cv2.matchTemplate(yellow_mask_original, self.right, cv2.TM_CCOEFF_NORMED)
                     left_max = numpy.max(left_res)
@@ -91,24 +72,18 @@ class Follower:
                     print(start_max)
 
                 th = 0.7
-                
- 
               
                 if left_max > th:
                     print('left')
-                    self.twist.linear.x = 0.5
-                    self.twist.angular.z = 0.2
-                    #self.cmd_vel_pub.publish(self.twist)
+                    self.twist.linear.x = 0.8
+                    self.twist.angular.z = 0.3
                 elif rigth_max > th-0.1 and left_max<0.55:
                     print('right')
-                    self.twist.linear.x = 0.5
-                    self.twist.angular.z = -0.2
-                    #self.cmd_vel_pub.publish(self.twist)
-                elif start_max > 0.55:
+                    self.twist.linear.x = 0.8
+                    self.twist.angular.z = -0.4
+                elif start_max > 0.4:
                     print('star')
-                    self.flag = 40
-                # else:
-                
+                    self.flag = 40                
                 self.cmd_vel_pub.publish(self.twist)
 
         elif self.flag>1:
