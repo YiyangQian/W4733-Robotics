@@ -1,4 +1,4 @@
-# Lab5 Follow Bot
+# Lab 5 Follow Bot
 [Detailed Requirements](https://github.com/jingxixu/followbot)
 
 ## Demo
