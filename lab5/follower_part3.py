@@ -60,66 +60,61 @@ class Follower:
         search_bot = 7*h/8
         yellow_mask[0:search_top, 0:w] = 0
         yellow_mask[search_bot:h, 0:w] = 0
-        blue_mask[0:search_top, 0:w] = 0
-        blue_mask[search_bot:h, 0:w] = 0
-        green_mask[0:search_top, 0:w] = 0
-        green_mask[search_bot:h, 0:w] = 0
         red_mask[0:search_top, 0:w] = 0
         red_mask[search_bot:h, 0:w] = 0
 
         M_yellow = cv2.moments(yellow_mask)
-        M_blue = cv2.moments(blue_mask)
-        M_green = cv2.moments(green_mask)
         M_red = cv2.moments(red_mask)
 
-        if M_red['m00']>0:
+        if self.flag == 0:
+            if M_red['m00']>0:
 
-            left_res = cv2.matchTemplate(red_mask_original, self.left, cv2.TM_CCOEFF_NORMED)
-            right_res = cv2.matchTemplate(red_mask_original, self.right, cv2.TM_CCOEFF_NORMED)
-            star_res = cv2.matchTemplate(red_mask_original, self.star, cv2.TM_CCOEFF_NORMED)
+                left_res = cv2.matchTemplate(red_mask_original, self.left, cv2.TM_CCOEFF_NORMED)
+                right_res = cv2.matchTemplate(red_mask_original, self.right, cv2.TM_CCOEFF_NORMED)
+                star_res = cv2.matchTemplate(red_mask_original, self.star, cv2.TM_CCOEFF_NORMED)
+                th = 0.7
+                left_max = numpy.max(left_res)
+                rigth_max = numpy.max(right_res)
+                start_max = numpy.max(star_res)
+                print(left_max, rigth_max, start_max)
+                # self.count += 1
+                # if self.count % 5 == 0:
+                #     cv2.imwrite("./template/saved_"+str(self.count) + '.jpg', image)
+                if left_max > th:
+                    print('left')
+                    self.twist.linear.x = 0.5
+                    self.twist.angular.z = 0.07
+                    self.cmd_vel_pub.publish(self.twist)
+                elif rigth_max > th-0.05:
+                    print('right')
+                    self.twist.linear.x = 0.5
+                    self.twist.angular.z = -0.12
+                    self.cmd_vel_pub.publish(self.twist)
+                elif start_max > 0.64:
+                    print('star')
+                    self.flag = 40
+                else:
+                    self.twist.linear.z = 0
+                    self.cmd_vel_pub.publish(self.twist)
 
-            th = 0.7
-            
-            left_max = numpy.max(left_res)
-            rigth_max = numpy.max(right_res)
-            start_max = numpy.max(star_res)
-            print(left_max, rigth_max, start_max)
-            # self.count += 1
-            # if self.count % 5 == 0:
-            #     cv2.imwrite("./template/saved_"+str(self.count) + '.jpg', image)
-            if left_max > th:
-                print('left')
+            elif M_yellow['m00'] > 0:
+                cx = int(M_yellow['m10']/M_yellow['m00'])
+                cy = int(M_yellow['m01']/M_yellow['m00'])
+                cv2.circle(image, (cx, cy), 20, (0,0,255), -1)
+                err = cx - w/2
                 self.twist.linear.x = 0.5
-                self.twist.angular.z = 0.07
-                self.cmd_vel_pub.publish(self.twist)
-            elif rigth_max > th-0.05:
-                print('right')
-                self.twist.linear.x = 0.5
-                self.twist.angular.z = -0.12
-                self.cmd_vel_pub.publish(self.twist)
-            elif start_max > 0.64:
-                print('star')
-                self.twist.linear.x = 0
-                self.twist.angular.z = 0
-                self.cmd_vel_pub.publish(self.twist)
-            else:
-                self.twist.linear.z = 0
+                self.twist.angular.z = -float(err) / 100
                 self.cmd_vel_pub.publish(self.twist)
 
-        elif M_yellow['m00'] > 0:
-            cx = int(M_yellow['m10']/M_yellow['m00'])
-            cy = int(M_yellow['m01']/M_yellow['m00'])
-            cv2.circle(image, (cx, cy), 20, (0,0,255), -1)
-            err = cx - w/2
-            self.twist.linear.x = 0.5
-            self.twist.angular.z = -float(err) / 100
+        elif self.flag>1:
+            self.cmd_vel_pub.publish(self.twist)
+            self.flag -= 1 
+        else:
+            self.twist.linear.x = 0
+            self.twist.angular.z = 0
             self.cmd_vel_pub.publish(self.twist)
 
-
-        # transfered_image = cv2.warpPerspective(image,self.homography,(h,w))
-
         cv2.imshow("window", image)
-        # cv2.imshow("transfered", tranfered_image)
         cv2.waitKey(3)
 
 rospy.init_node('follower')

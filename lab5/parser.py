@@ -14,7 +14,7 @@ def parse(image_path, target_path):
     search_bot = 7*h/8 - 5
 
     search_left = w/4
-    search_right = w*3/4
+    search_right = w
 
     red_mask_crop = red_mask[search_top:search_bot,search_left:search_right]
     image_crop = hsv[search_top:search_bot,search_left:search_right]
@@ -27,10 +27,10 @@ def parse(image_path, target_path):
 
     cv2.imwrite(target_path, red_mask_crop)
     rgb_masked =  cv2.cvtColor(masked, cv2.COLOR_HSV2BGR)
-    cv2.imwrite('./template/template_left_rgb_masked.jpg', rgb_masked)
+    cv2.imwrite('./template/template_right_rgb_masked.jpg', rgb_masked)
 
 # parse('./template/left.jpg', './template/template_left_mask.jpg')
-#parse('./template/saved_35.jpg', './template/template_right_mask.jpg')
+parse('./template/right.jpg', './template/template_right_mask.jpg')
 #parse('./template/star.jpg', './template/template_star_mask.jpg')
 
 def match(original_path, template_path):
@@ -53,5 +53,5 @@ def match_mask(original_path, template_path):
     res = cv2.matchTemplate(red_mask, red_mask_template, cv2.TM_CCOEFF_NORMED)
     print(numpy.max(res))
 
-match_mask("./template/left.jpg", './template/template_left_rgb_masked.jpg')
+#match_mask("./template/left.jpg", './template/template_left_rgb_masked.jpg')
 #match_mask("./template/left.jpg", './template/template_left_masked.jpg')
