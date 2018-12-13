@@ -13,10 +13,7 @@ class Follower:
         Twist, queue_size=1)
         self.twist = Twist()
         self.r = rospy.Rate(1)
-        #cv2.namedWindow("window", 1)
-        # cv2.namedWindow("transfered", 2)
         self.flag = 0
-        self.count = 0
         self.left_rgb = cv2.imread('./template/template_left_rgb_masked.jpg')
         self.right_rgb = cv2.imread('./template/template_right_rgb_masked.jpg')
         self.star_rgb = cv2.imread('./template/template_star_rgb_masked.jpg')
@@ -77,9 +74,6 @@ class Follower:
                 rigth_max = numpy.max(right_res)
                 start_max = numpy.max(star_res)
                 print(left_max, rigth_max, start_max)
-                # self.count += 1
-                # if self.count % 5 == 0:
-                #     cv2.imwrite("./template/saved_"+str(self.count) + '.jpg', image)
                 if left_max > th:
                     print('left')
                     self.twist.linear.x = 0.5

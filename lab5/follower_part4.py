@@ -13,10 +13,7 @@ class Follower:
         Twist, queue_size=1)
         self.twist = Twist()
         self.r = rospy.Rate(1)
-        #cv2.namedWindow("window", 1)
-        # cv2.namedWindow("transfered", 2)
         self.flag = 0
-        self.count = 0
         self.left_rgb = cv2.imread('./template/template_left_rgb_masked.jpg')
         self.right_rgb = cv2.imread('./template/template_right_rgb_masked.jpg')
         self.star_rgb = cv2.imread('./template/template_star_rgb_masked.jpg')
