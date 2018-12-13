@@ -53,5 +53,5 @@ def match_mask(original_path, template_path):
     res = cv2.matchTemplate(red_mask, red_mask_template, cv2.TM_CCOEFF_NORMED)
     print(numpy.max(res))
 
-#match_mask("./template/left.jpg", './template/template_left_rgb_masked.jpg')
-#match_mask("./template/left.jpg", './template/template_left_masked.jpg')
+match_mask("./template/left.jpg", './template/template_left_rgb_masked.jpg')
+match_mask("./template/left.jpg", './template/template_left_masked.jpg')
