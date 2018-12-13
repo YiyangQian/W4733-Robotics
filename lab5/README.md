@@ -1,4 +1,4 @@
-# Lab 5 Follow Bot
+# Lab 5 - Follow Bot
 [Detailed Requirements](https://github.com/jingxixu/followbot)
 
 ## Demo
@@ -24,7 +24,7 @@ To set up the environment of part 2, open a new terminal
 ROBOT_INITIAL_POSE="-x -2.85 -y -0.27 -Y 1.53" roslaunch followbot launch.launch world_file:=color.world
 ```
 
-To run the code for part 1, open another terminal
+To run the code for part 2, open another terminal
 ```
 python follower_part2.py
 ```
@@ -34,7 +34,7 @@ To set up the environment of part 3, open a new terminal
 ROBOT_INITIAL_POSE="-x -2.85 -y -0.27 -Y 1.53" roslaunch followbot launch.launch world_file:=shape.world
 ```
 
-To run the code for part 1, open another terminal
+To run the code for part 3, open another terminal
 ```
 python follower_part3.py
 ```
@@ -44,7 +44,7 @@ To set up the environment of part 4, open a new terminal
 ROBOT_INITIAL_POSE="-x -2.85 -y -0.27 -Y 1.53" roslaunch followbot launch.launch world_file:=extra.world
 ```
 
-To run the code for part 1, open another terminal
+To run the code for part 4, open another terminal
 ```
 python follower_part4.py
 ```
