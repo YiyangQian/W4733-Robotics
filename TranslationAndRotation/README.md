@@ -1,9 +1,14 @@
-# Lab 1 
-[Link to Demo](https://youtu.be/ydDKaR5_Vos)
+# Translation and Rotation
+[Link to Video Demo](https://youtu.be/ydDKaR5_Vos)
 
-[Detailed Requirements](https://github.com/YiyangQian/W4733-Robotics/blob/master/lab1/lab1.pdf)
+## Summary
+This project is an interface of an virtual ROS indigo robot. The robot reads in commands from command line: T for translation, R for rotation and Q for quit. In addition, if T (translation) or R (rotation), it will prompt for the distance to move or angles to rotate. The project support positive and negative translations (forward and backward movement) and positive and negative rotations (counterclockwise and clockwise rotation). It will keeps prompting until user hits Q. 
 
-### Run the Script
+## Prerequest
+1. Set up a working Ubuntu 14.04 machine. 
+2. Install ROS Indigo. 
+
+## Run the Script
 Set up a turtlebot environment
 ```
 roslaunch rbx1_bringup fake_turtlebot.launch
@@ -16,14 +21,14 @@ rosrun rviz rviz -d `rospack find rbx1_nav`/sim.rviz
 
 Open another terminal and run the script
 ```
-python timed_out_and_back.py
+python runIndigo.py
 ```
 
 Then prompt will ask for a command for the next move, and you can type in T(Transfer), R(Rotate) or Q(Quit). 
 
 If the move ordered is T or R, a number will be asked for. The number you type in means target distance to move or target angular to rotate.
 
-### Brief Description of Methods
+## Brief Description of Methods
 * def stop(self):  
     * stop the robort after one action, called as the last step of transfer or rotate
 * def translate(self, linear_speed, linear_duration, rate, r): 

@@ -1,27 +1,5 @@
 #!/usr/bin/env python
 
-""" timed_out_and_back.py - Version 1.2 2014-12-14
-
-    A basic demo of the using odometry data to move the robot along
-    and out-and-back trajectory.
-
-    Created for the Pi Robot Project: http://www.pirobot.org
-    Copyright (c) 2012 Patrick Goebel.  All rights reserved.
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.5
-    
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details at:
-    
-    http://www.gnu.org/licenses/gpl.html
-      
-"""
-
 import rospy
 from geometry_msgs.msg import Twist
 from math import pi
