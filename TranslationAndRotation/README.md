@@ -4,7 +4,7 @@
 ## Summary
 This project is an interface of an virtual ROS indigo robot. The robot reads in commands from command line: T for translation, R for rotation and Q for quit. In addition, if T (translation) or R (rotation), it will prompt for the distance to move or angles to rotate. The project support positive and negative translations (forward and backward movement) and positive and negative rotations (counterclockwise and clockwise rotation). It will keeps prompting until user hits Q. 
 
-## Prerequest
+## Prerequisites
 1. Set up a working Ubuntu 14.04 machine. 
 2. Install ROS Indigo. 
 
