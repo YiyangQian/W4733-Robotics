@@ -2,7 +2,7 @@
 [Link to Video Demo](https://www.youtube.com/watch?v=WH0H8ikGQF4&list=PLF7A_BRkte4XUmaT9YkKfNZHVgVBSWv0n&index=4&t=6s)
 
 ## Summary
-This project implements the Bug 2 path planning algorithm. The following pic explains the basic idea of it. In this project, we will move the turtlebot from a start position to a goal position along the m-line. If the turtlebot senses an obstacle, then it invokes a contour following behavior until it reaches the m-line again, at which point it proceeds towards the goal. This behavior (follow m-line, follow contour, re-acquire m-line) continues as long as there are obstacles or until the goal position is reached. 
+This project implements the Bug 2 path planning algorithm for 6 sample worlds. The following pic explains the basic idea of it. In this project, we will move the turtlebot from a start position to a goal position along the m-line. If the turtlebot senses an obstacle, then it invokes a contour following behavior until it reaches the m-line again, at which point it proceeds towards the goal. This behavior (follow m-line, follow contour, re-acquire m-line) continues as long as there are obstacles or until the goal position is reached. 
 ![Bug 2 algorithm for path planning](https://github.com/YiyangQian/W4733-Robotics/blob/master/Bug2PathPlanning/bug2.png)
 
 ## Prerequest
