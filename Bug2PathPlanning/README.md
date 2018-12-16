@@ -3,7 +3,7 @@
 
 ## Summary
 This project implements the Bug 2 path planning algorithm. The following pic explains the basic idea of it. In this project, we will move the turtlebot from a start position to a goal position along the m-line. If the turtlebot senses an obstacle, then it invokes a contour following behavior until it reaches the m-line again, at which point it proceeds towards the goal. This behavior (follow m-line, follow contour, re-acquire m-line) continues as long as there are obstacles or until the goal position is reached. 
-![Bug 2 algorithm for path planning](https://github.com/YiyangQian/IDS_Active_Authentication/blob/master/stranger.png)
+![Bug 2 algorithm for path planning](https://github.com/YiyangQian/W4733-Robotics/blob/master/Bug2PathPlanning/bug2.png)
 
 ## Prerequest
 Set up a working Ubuntu 14.04 machine. 
@@ -30,10 +30,10 @@ Then, open a new terminal at the path of lab2.py and run following
 python bug2.py cmd_vel:=cmd_vel_mux/input/teleop
 ```
 
-### Brief Description of Methods
+## Brief Description of Methods
 * All methods should be self-explained.
 
-### Explanation of logic: 
+## Explanation of logic: 
 1. flag is_following_m_line will be turned into false when sensored obstacle ahead
 2. once is_following_m_line turns false, the state of the robot changes into following the obstacle
     * keeps turns left when obstacle is too close, once distance to obstacle larger than 1.3, will move forward
