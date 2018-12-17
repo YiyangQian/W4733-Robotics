@@ -1,15 +1,17 @@
-# Lab4 part2
-[Detailed Requirements](http://www.cs.columbia.edu/~allen/F18/HMWK/lab4/lab4.html)
+# Bi-directional Rapidly-exploring Random Tree (RRT) Path Planning
+
+## Summary
+This project is based on the RRT project which is sibling to this project. To optimize the path planning process, a bi-directional RRT builds two trees starting from start point and end point at the same time. The two trees take turns to generate a new node, and check whether any nodes in the other tree is close enough to the new node. If there is any pair from two trees get close enough and there is no obstacle between them, we know we have already found a path.
 
 ## Run the script 
 ```
 python draw.py obstacle.txt start_end_points.txt
 ```
 
-### Brief Description of Methods
-* All methods should be self-explained.
+## Brief Description of Methods
+All methods should be self-explained.
 
-### Explanation of logic: 
+## Explanation of logic: 
 1. Lab4_part was made on top the Lab4_part1 and still use the basic draw.py as the start point of our project.
 2. A class named BiDirectionRRT was defined in BiDirectionRRT.py. An BiDirectionRRT is designed as following: 
     * An instance of BiDirectionRRT will make two RRT instances inside, and each of them have seperate step sizes. 
