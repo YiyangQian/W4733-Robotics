@@ -21,13 +21,13 @@ All methods should be self-explained.
 
 ## Examples of resultes
 step size 10 and 25
-![step size 10 and 25](https://github.com/YiyangQian/W4733-Robotics/blob/master/lab4_part2/step_10_25.png)
+![step size 10 and 25](https://github.com/YiyangQian/W4733-Robotics/blob/master/BiDirectionalRRT/step_10_25.png)
 
 step size 25 and 10
-![step size 25 and 10](https://github.com/YiyangQian/W4733-Robotics/blob/master/lab4_part2/step_25_10.png)
+![step size 25 and 10](https://github.com/YiyangQian/W4733-Robotics/blob/master/BiDirectionalRRT/step_25_10.png)
 
 step size 25 and 25
-![step size 25 and 25](https://github.com/YiyangQian/W4733-Robotics/blob/master/lab4_part2/step_25_25.png)
+![step size 25 and 25](https://github.com/YiyangQian/W4733-Robotics/blob/master/BiDirectionalRRT/step_25_25.png)
 
 step size 25 and 50
-![step size 25 and 50](https://github.com/YiyangQian/W4733-Robotics/blob/master/lab4_part2/step_25_50.png)
+![step size 25 and 50](https://github.com/YiyangQian/W4733-Robotics/blob/master/BiDirectionalRRT/step_25_50.png)

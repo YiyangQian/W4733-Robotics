@@ -24,10 +24,10 @@ python draw.py obstacle.txt start_end_points.txt
 
 ## Examples of resultes
 step size 10
-![step size 10](https://github.com/YiyangQian/W4733-Robotics/blob/master/lab4_part1/step_10.png)
+![step size 10](https://github.com/YiyangQian/W4733-Robotics/blob/master/RRT/step_10.png)
 
 step size 25
-![step size 25](https://github.com/YiyangQian/W4733-Robotics/blob/master/lab4_part1/step_25.png)
+![step size 25](https://github.com/YiyangQian/W4733-Robotics/blob/master/RRT/step_25.png)
 
 step size 50
-![step size 50](https://github.com/YiyangQian/W4733-Robotics/blob/master/lab4_part1/step_50.png)
+![step size 50](https://github.com/YiyangQian/W4733-Robotics/blob/master/RRT/step_50.png)
