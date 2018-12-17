@@ -12,7 +12,7 @@ python draw.py obstacle.txt start_end_points.txt
 All methods should be self-explained.
 
 ## Explanation of logic: 
-1. Lab4_part was made on top the Lab4_part1 and still use the basic draw.py as the start point of our project.
+1. draw.py is the start point of this project.
 2. A class named BiDirectionRRT was defined in BiDirectionRRT.py. An BiDirectionRRT is designed as following: 
     * An instance of BiDirectionRRT will make two RRT instances inside, and each of them have seperate step sizes. 
     * An instance of BiDirectionRRT is offered with start and ends points, step sizes and a list of all vertices. 
