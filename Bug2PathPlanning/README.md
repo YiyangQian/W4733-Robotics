@@ -1,4 +1,4 @@
-# Bug 2 path planning
+# Bug 2 Path Planning
 [Link to Video Demo](https://www.youtube.com/watch?v=WH0H8ikGQF4&list=PLF7A_BRkte4XUmaT9YkKfNZHVgVBSWv0n&index=4&t=6s)
 
 ## Summary
